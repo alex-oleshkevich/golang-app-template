@@ -1,0 +1,11 @@
+.git
+.github
+bin
+tmp
+coverage.out
+coverage.html
+.env
+.env.*
+*.md
+justfile
+compose.yml

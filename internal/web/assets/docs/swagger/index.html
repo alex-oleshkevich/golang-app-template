@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Nisaba API (Swagger UI)</title>
+    <link rel="stylesheet" href="5.33.1/swagger-ui.css">
+</head>
+<body>
+    <div id="swagger-ui"></div>
+    <script src="5.33.1/swagger-ui-bundle.js"></script>
+    <script>
+        // validatorUrl: null keeps the spec-validity badge from calling validator.swagger.io.
+        SwaggerUIBundle({ url: '/api/v1/openapi.json', dom_id: '#swagger-ui', validatorUrl: null })
+    </script>
+</body>
+</html>

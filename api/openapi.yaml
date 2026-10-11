@@ -1,0 +1,32 @@
+openapi: 3.0.3
+info:
+  title: Nisaba
+  version: 0.1.0
+servers:
+  - url: /api/v1
+paths: {}
+components:
+  responses:
+    Error:
+      description: Error, as RFC 9457 problem details.
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetails"
+  schemas:
+    ProblemDetails:
+      type: object
+      required: [title, detail, status, instance]
+      properties:
+        title:
+          type: string
+        detail:
+          type: string
+        status:
+          type: integer
+        instance:
+          type: string
+        errors:
+          type: object
+          additionalProperties:
+            type: string

@@ -1,0 +1,61 @@
+version: "2"
+
+linters:
+    default: standard
+    enable:
+        - bodyclose
+        - errorlint
+        - exhaustive
+        - exhaustruct_v5
+        - gocritic
+        - gosec
+        - lll
+        - misspell
+        - nilerr
+        - noctx
+        - sloglint
+        - unconvert
+        - unparam
+        - usestdlibvars
+    settings:
+        errcheck:
+            check-type-assertions: true
+        exhaustive:
+            check:
+                - switch
+                - map
+            default-signifies-exhaustive: false
+        exhaustruct_v5:
+            # Only our own types: stdlib/third-party structs (http.Server, slog.HandlerOptions) are built partially by design.
+            explicit-mode: true
+            enforce-patterns:
+                - ^nisaba/.*
+            ignore-patterns:
+                - ^nisaba/api\..*Options$
+        govet:
+            enable:
+                - shadow
+        lll:
+            line-length: 120
+            tab-width: 4
+    exclusions:
+        generated: lax
+        presets:
+            - std-error-handling
+        paths:
+            - api/api.gen.go
+        rules:
+            - path: _test\.go
+              linters:
+                  - exhaustruct_v5
+                  - gosec
+                  - noctx
+
+formatters:
+    enable:
+        - gofmt
+        - goimports
+    exclusions:
+        generated: lax
+        paths:
+            - api/api.gen.go
