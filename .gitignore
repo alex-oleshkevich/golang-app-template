@@ -36,4 +36,4 @@ go.work.sum
 /bin/
 /tmp/
 .serena
-nisaba.db
+nisaba.db*

@@ -39,11 +39,3 @@ func docsFiles() http.Handler {
 	}
 	return http.StripPrefix("/api/docs", http.FileServerFS(sub))
 }
-
-// immutable marks responses as cacheable forever; mount it only on paths that carry a version or content hash.
-func immutable(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
-		next.ServeHTTP(w, r)
-	})
-}

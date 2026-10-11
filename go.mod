@@ -5,6 +5,7 @@ go 1.27.1
 require (
 	github.com/getkin/kin-openapi v0.149.0
 	github.com/go-chi/chi/v5 v5.3.2
+	github.com/go-chi/httplog/v3 v3.5.0
 	github.com/go-playground/form/v4 v4.5.0
 	github.com/lmittmann/tint v1.2.0
 	github.com/oapi-codegen/nethttp-middleware v1.2.0

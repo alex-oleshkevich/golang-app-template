@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"nisaba/internal/db"
 	"nisaba/internal/web"
 
 	"github.com/urfave/cli/v3"
@@ -34,6 +35,12 @@ func NewCommand() *cli.Command {
 				Usage:   "serve the OpenAPI document and the Swagger UI / Scalar pages",
 				Sources: cli.EnvVars("NISABA_DOCS"),
 			},
+			&cli.StringFlag{
+				Name:    "db",
+				Usage:   "SQLite database DSN",
+				Value:   "nisaba.db",
+				Sources: cli.EnvVars("NISABA_DB"),
+			},
 		},
 		Action: run,
 	}
@@ -56,6 +63,12 @@ func validateAddress(addr string) error {
 }
 
 func run(ctx context.Context, c *cli.Command) error {
+	db, err := db.Open(ctx, c.String("db"))
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
 	server := web.New(web.Deps{
 		Config: web.ServerConfig{
 			ListenAddr: c.String("address"),

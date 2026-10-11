@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/httplog/v3"
 )
 
 type ServerConfig struct {
@@ -28,9 +29,18 @@ type Server struct {
 
 func New(deps Deps) *Server {
 	router := chi.NewRouter()
-	router.Use(middleware.Recoverer)
-	router.Use(middleware.Compress(5))
+	// Rightmost X-Forwarded-For entry: right for exactly one proxy hop (the Uncloud Caddy ingress).
+	router.Use(middleware.ClientIPFromXFF())
 	router.Use(middleware.RequestID)
+	router.Use(httplog.RequestLogger(slog.Default(), &httplog.Options{
+		RecoverPanics: true,
+		// The container healthcheck hits this every 10s; only failures are worth a line.
+		Skip: func(r *http.Request, status int) bool {
+			return r.URL.Path == "/healthz" && status == http.StatusOK
+		},
+	}))
+	router.Use(logRequestID)
+	router.Use(middleware.Compress(5))
 
 	installRoutes(deps, router)
 
