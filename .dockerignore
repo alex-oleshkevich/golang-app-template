@@ -9,5 +9,6 @@ coverage.html
 *.md
 justfile
 compose.yml
-# Frontend sources and node_modules; the built UI is already in internal/web/assets/app.
-ui
+ui/node_modules
+# The ui stage builds the frontend; a local build would only add stale files.
+internal/web/assets/app

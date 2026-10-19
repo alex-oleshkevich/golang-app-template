@@ -16,7 +16,7 @@ build: ui-build
     CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -X main.commit=$(git rev-parse --short=7 HEAD) -X main.buildTime=$(date -u +%Y-%m-%dT%H:%M:%SZ)" -o bin/nisaba ./cmd/nisaba
 
 [doc("Build the image and deploy it to the Uncloud cluster. Requires NISABA_DOMAIN.")]
-deploy *args: ui-build
+deploy *args:
     ./scripts/deploy.sh {{args}}
 
 [doc("Regenerate api/api.gen.go from api/openapi.yaml.")]

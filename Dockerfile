@@ -1,5 +1,18 @@
 # syntax=docker/dockerfile:1
 
+FROM node:24-alpine AS ui
+
+WORKDIR /src/ui
+
+RUN npm install -g pnpm@11.10.0
+
+COPY ui/package.json ui/pnpm-lock.yaml ui/pnpm-workspace.yaml ./
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile
+
+COPY ui/ ./
+# vite.config.ts writes to ../internal/web/assets/app, the directory the Go binary embeds.
+RUN pnpm build
+
 FROM golang:1.27.1-alpine3.24 AS build
 
 WORKDIR /src
@@ -10,6 +23,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
+COPY --from=ui /src/internal/web/assets/app ./internal/web/assets/app
 
 # .git is not in the build context, so the commit comes in as a build arg (see compose.yml).
 ARG COMMIT=unknown
