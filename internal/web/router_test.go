@@ -35,7 +35,7 @@ func TestRouter(t *testing.T) {
 		status                  int
 	}{
 		{"health", "/healthz", "application/json", "\"ok\"\n", http.StatusOK},
-		{"unknown path", "/nope", "application/problem+json", `"status":404`, http.StatusNotFound},
+		{"unknown file", "/nope.js", "application/problem+json", `"status":404`, http.StatusNotFound},
 		{"unknown api path", "/api/nope", "application/problem+json", `"status":404`, http.StatusNotFound},
 		{"unknown v1 path", "/api/v1/nope", "application/problem+json", `"status":404`, http.StatusNotFound},
 	}

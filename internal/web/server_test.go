@@ -91,6 +91,20 @@ func TestRouterRecoversPanic(t *testing.T) {
 	}
 }
 
+func TestHandlersGetADeadline(t *testing.T) {
+	router := New(Deps{}).server.Handler.(*chi.Mux)
+	var left time.Duration
+	router.Get("/deadline", func(_ http.ResponseWriter, r *http.Request) {
+		if deadline, ok := r.Context().Deadline(); ok {
+			left = time.Until(deadline)
+		}
+	})
+	router.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/deadline", nil))
+	if left <= 0 || left > handlerTimeout || handlerTimeout >= writeTimeout {
+		t.Fatalf("deadline in %s, handler timeout %s, write timeout %s", left, handlerTimeout, writeTimeout)
+	}
+}
+
 func freePort(t *testing.T) string {
 	t.Helper()
 	ln, err := net.Listen("tcp", "127.0.0.1:0")

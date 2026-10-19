@@ -5,12 +5,18 @@ dev:
     command -v air >/dev/null || go install github.com/air-verse/air@v1.67.4
     air
 
-[doc("Build the nisaba binary into bin/nisaba.")]
-build:
+[doc("Build the frontend in ui/ into internal/web/assets/app, which the binary embeds.")]
+ui-build:
+    pnpm --dir ui build
+    # vite empties the output dir; the placeholder keeps go:embed valid on a fresh clone.
+    touch internal/web/assets/app/.gitkeep
+
+[doc("Build the frontend, then the nisaba binary into bin/nisaba.")]
+build: ui-build
     CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -X main.commit=$(git rev-parse --short=7 HEAD) -X main.buildTime=$(date -u +%Y-%m-%dT%H:%M:%SZ)" -o bin/nisaba ./cmd/nisaba
 
 [doc("Build the image and deploy it to the Uncloud cluster. Requires NISABA_DOMAIN.")]
-deploy *args:
+deploy *args: ui-build
     ./scripts/deploy.sh {{args}}
 
 [doc("Regenerate api/api.gen.go from api/openapi.yaml.")]

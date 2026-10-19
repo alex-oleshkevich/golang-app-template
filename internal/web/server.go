@@ -19,6 +19,11 @@ type ServerConfig struct {
 	Docs       bool
 }
 
+const (
+	handlerTimeout = 25 * time.Second
+	writeTimeout   = 30 * time.Second
+)
+
 type Deps struct {
 	Config ServerConfig
 }
@@ -40,6 +45,9 @@ func New(deps Deps) *Server {
 		},
 	}))
 	router.Use(logRequestID)
+	router.Use(middleware.Timeout(handlerTimeout))
+	// HEAD falls through to the GET route, so `curl -I` and link checkers see the page instead of a 405.
+	router.Use(middleware.GetHead)
 	router.Use(middleware.Compress(5))
 
 	installRoutes(deps, router)
@@ -49,6 +57,8 @@ func New(deps Deps) *Server {
 			Addr:              net.JoinHostPort(deps.Config.ListenAddr, deps.Config.ListenPort),
 			Handler:           router,
 			ReadHeaderTimeout: 5 * time.Second,
+			ReadTimeout:       15 * time.Second,
+			WriteTimeout:      writeTimeout,
 			IdleTimeout:       60 * time.Second,
 		},
 	}

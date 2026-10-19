@@ -38,3 +38,7 @@ go.work.sum
 .serena
 nisaba.db*
 .codegraph
+
+# Frontend build output; `just ui-build` writes it, the binary embeds it.
+internal/web/assets/app/*
+!internal/web/assets/app/.gitkeep

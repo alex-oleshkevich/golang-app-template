@@ -26,7 +26,7 @@ func installRoutes(deps Deps, router *chi.Mux) {
 
 	router.Get("/healthz", handlers.Health)
 
-	// Unknown /api/* paths answer problem+json, so a future SPA catch-all at the root never answers an API path.
+	// Unknown /api/* paths answer problem+json, so the frontend catch-all at the root never answers an API path.
 	router.Route("/api", func(r chi.Router) {
 		r.NotFound(handlers.NotFound)
 		r.Route("/v1", func(r chi.Router) {
@@ -57,5 +57,5 @@ func installRoutes(deps Deps, router *chi.Mux) {
 			})
 		}
 	})
-	router.NotFound(handlers.NotFound)
+	router.Get("/*", serveFrontend(frontendFS()))
 }
