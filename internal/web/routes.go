@@ -57,5 +57,9 @@ func installRoutes(deps Deps, router *chi.Mux) {
 			})
 		}
 	})
-	router.Get("/*", serveFrontend(frontendFS()))
+	if deps.Config.FrontendDevServer != nil {
+		router.Get("/*", proxyFrontend(deps.Config.FrontendDevServer))
+	} else {
+		router.Get("/*", serveFrontend(frontendFS()))
+	}
 }

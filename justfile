@@ -1,7 +1,7 @@
 # Nisaba development and deploy tasks.
 
-[doc("Install air when it is missing, then rebuild and restart on Go file changes.")]
-dev:
+[doc("Serve API and frontend on :8080, both reloading on change. The argument is Vite's address.")]
+dev $NISABA_FRONTEND_DEV_SERVER="http://127.0.0.1:5173":
     command -v air >/dev/null || go install github.com/air-verse/air@v1.67.4
     air
 
@@ -34,6 +34,10 @@ vendor-docs:
 [doc("Run golangci-lint. Extra words are flags: just lint --fix")]
 lint *args:
     golangci-lint run {{args}} ./...
+
+[doc("Lint and format-check the frontend with Biome. Extra words are flags: just ui-lint --write")]
+ui-lint *args:
+    pnpm --dir ui exec biome check {{args}}
 
 [doc("Run the test suite.")]
 test:

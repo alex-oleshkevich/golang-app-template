@@ -1,0 +1,53 @@
+{
+    "$schema": "./ui/node_modules/@biomejs/biome/configuration_schema.json",
+    "vcs": {
+        "enabled": true,
+        "clientKind": "git",
+        "useIgnoreFile": true
+    },
+    "files": {
+        "includes": ["ui/**"]
+    },
+    "formatter": {
+        "indentStyle": "space",
+        "indentWidth": 4,
+        "lineWidth": 120,
+        "expand": "auto"
+    },
+    "javascript": {
+        "formatter": {
+            "semicolons": "asNeeded",
+            "quoteStyle": "double",
+            "trailingCommas": "all"
+        }
+    },
+    "css": {
+        "parser": {
+            "tailwindDirectives": true
+        }
+    },
+    "linter": {
+        "domains": {
+            "react": "recommended",
+            "tailwind": "recommended"
+        },
+        "rules": {
+            "nursery": {
+                "useSortedClasses": {
+                    "level": "warn",
+                    "fix": "safe",
+                    "options": {
+                        "functions": ["cn", "cva"]
+                    }
+                }
+            }
+        }
+    },
+    "assist": {
+        "actions": {
+            "source": {
+                "organizeImports": "on"
+            }
+        }
+    }
+}

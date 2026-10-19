@@ -4,8 +4,11 @@ root = "."
 tmp_dir = "tmp"
 
 [build]
-args_bin = ["serve", "--address", "127.0.0.1", "--port", "8080", "--docs"]
-bin = "./tmp/nisaba"
+# serve reads NISABA_FRONTEND_DEV_SERVER, which `just dev` exports for it and for Vite.
+# If nisaba exits with an error (crash, port in use), stop air instead of watching a dead server.
+full_bin = "./tmp/nisaba serve --address 127.0.0.1 --port 8080 --docs || { echo 'nisaba exited with an error; stopping air' >&2; kill -INT $PPID; }"
+# Runs Vite next to air ($PPID); if either exits, the other stops.
+pre_cmd = ["scripts/dev-vite.sh $PPID"]
 cmd = "go build -o ./tmp/nisaba ./cmd/nisaba"
 delay = 1000
 exclude_dir = ["bin", "tmp", "vendor", "ui"]

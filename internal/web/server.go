@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -17,6 +18,8 @@ type ServerConfig struct {
 	ListenAddr string
 	ListenPort string
 	Docs       bool
+	// FrontendDevServer, when set, is proxied instead of serving the embedded build.
+	FrontendDevServer *url.URL
 }
 
 const (

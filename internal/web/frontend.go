@@ -1,10 +1,14 @@
 package web
 
 import (
+	"context"
 	"io/fs"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"path"
 	"strings"
+	"time"
 
 	"nisaba/internal/web/assets"
 	"nisaba/internal/web/handlers"
@@ -43,5 +47,19 @@ func serveFrontend(fsys fs.FS) http.HandlerFunc {
 		// Revalidate every time: index.html names the hashed assets of the current deploy.
 		w.Header().Set("Cache-Control", "no-cache")
 		http.ServeFileFS(w, r, fsys, "index.html")
+	}
+}
+
+func proxyFrontend(devServer *url.URL) http.HandlerFunc {
+	proxy := &httputil.ReverseProxy{Rewrite: func(r *httputil.ProxyRequest) { r.SetURL(devServer) }}
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Vite's hot-reload websocket lives as long as the page; the request timeouts would cut it.
+		if strings.EqualFold(r.Header.Get("Upgrade"), "websocket") {
+			rc := http.NewResponseController(w)
+			_ = rc.SetReadDeadline(time.Time{})
+			_ = rc.SetWriteDeadline(time.Time{})
+			r = r.WithContext(context.WithoutCancel(r.Context()))
+		}
+		proxy.ServeHTTP(w, r)
 	}
 }

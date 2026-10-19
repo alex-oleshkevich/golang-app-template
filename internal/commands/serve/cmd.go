@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -48,6 +49,12 @@ func NewCommand() *cli.Command {
 				Usage:   "apply pending migrations before serving",
 				Sources: cli.EnvVars("NISABA_DB_MIGRATE"),
 			},
+			&cli.StringFlag{
+				Name:      "frontend-dev-server",
+				Usage:     "proxy the frontend to the Vite dev server at `URL` instead of serving the embedded build",
+				Sources:   cli.EnvVars("NISABA_FRONTEND_DEV_SERVER"),
+				Validator: validateURL,
+			},
 		},
 		Action: run,
 	}
@@ -57,6 +64,13 @@ func validatePort(port string) error {
 	n, err := strconv.Atoi(port)
 	if err != nil || n < 1 || n > 65535 {
 		return fmt.Errorf("port %q is outside 1-65535", port)
+	}
+	return nil
+}
+
+func validateURL(raw string) error {
+	if u, err := url.Parse(raw); err != nil || u.Host == "" {
+		return fmt.Errorf("%q is not a URL like http://127.0.0.1:5173", raw)
 	}
 	return nil
 }
@@ -82,11 +96,17 @@ func run(ctx context.Context, c *cli.Command) error {
 	}
 	defer conn.Close()
 
+	var devServer *url.URL
+	if raw := c.String("frontend-dev-server"); raw != "" {
+		devServer, _ = url.Parse(raw) // checked by validateURL
+	}
+
 	server := web.New(web.Deps{
 		Config: web.ServerConfig{
-			ListenAddr: c.String("address"),
-			ListenPort: c.String("port"),
-			Docs:       c.Bool("docs"),
+			ListenAddr:        c.String("address"),
+			ListenPort:        c.String("port"),
+			Docs:              c.Bool("docs"),
+			FrontendDevServer: devServer,
 		},
 	})
 	return server.Run(ctx)
