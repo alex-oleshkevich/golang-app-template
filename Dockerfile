@@ -11,9 +11,11 @@ RUN go mod download
 
 COPY . .
 
+# .git is not in the build context, so the commit comes in as a build arg (see compose.yml).
+ARG COMMIT=unknown
 RUN CGO_ENABLED=0 GOOS=linux go build \
     -trimpath \
-    -ldflags "-s -w" \
+    -ldflags "-s -w -X main.commit=${COMMIT} -X main.buildTime=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
     -o /out/nisaba ./cmd/nisaba
 
 FROM gcr.io/distroless/static-debian12:nonroot

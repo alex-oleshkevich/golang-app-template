@@ -12,4 +12,8 @@ if ! command -v uc >/dev/null 2>&1; then
   exit 1
 fi
 
+# compose.yml passes this to the image build, which stamps it into the binary.
+NISABA_COMMIT="$(git rev-parse --short=7 HEAD)"
+export NISABA_COMMIT
+
 exec uc deploy "$@"

@@ -17,6 +17,12 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
+// Stamped at link time; see the build recipe in the justfile and the Dockerfile.
+var (
+	commit    = "dev"
+	buildTime = "unknown"
+)
+
 func main() {
 	os.Exit(run(os.Args))
 }
@@ -28,6 +34,7 @@ func run(args []string) int {
 	cmd := &cli.Command{
 		Name:           "nisaba",
 		Usage:          "Nisaba CLI",
+		Version:        commit + " (built " + buildTime + ")",
 		DefaultCommand: "serve",
 		Flags: []cli.Flag{
 			&cli.StringFlag{

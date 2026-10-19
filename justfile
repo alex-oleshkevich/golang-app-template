@@ -7,7 +7,7 @@ dev:
 
 [doc("Build the nisaba binary into bin/nisaba.")]
 build:
-    CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o bin/nisaba ./cmd/nisaba
+    CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -X main.commit=$(git rev-parse --short=7 HEAD) -X main.buildTime=$(date -u +%Y-%m-%dT%H:%M:%SZ)" -o bin/nisaba ./cmd/nisaba
 
 [doc("Build the image and deploy it to the Uncloud cluster. Requires NISABA_DOMAIN.")]
 deploy *args:
