@@ -31,4 +31,4 @@ ENV NISABA_DB=/data/nisaba.db
 EXPOSE 8080
 
 ENTRYPOINT ["/nisaba"]
-CMD ["serve", "--address", "0.0.0.0", "--port", "8080"]
+CMD ["serve", "--address", "0.0.0.0", "--port", "8080", "--db-migrate"]

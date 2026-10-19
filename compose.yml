@@ -8,7 +8,7 @@ services:
       args:
         COMMIT: ${NISABA_COMMIT:-unknown}
     image: nisaba:{{gitsha 7}}
-    command: ["serve", "--address", "0.0.0.0", "--port", "8080"]
+    command: ["serve", "--address", "0.0.0.0", "--port", "8080", "--db-migrate"]
     restart: unless-stopped
     init: true
     read_only: true

@@ -17,7 +17,7 @@ deploy *args:
 generate:
     go tool oapi-codegen --config api/cfg.yaml api/openapi.yaml
 
-[doc("Regenerate internal/db query code from db/schema.sql and db/queries.")]
+[doc("Regenerate internal/db query code from internal/db/migrations and internal/db/queries.")]
 sqlc:
     sqlc generate
 

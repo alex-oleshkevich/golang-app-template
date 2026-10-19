@@ -3,6 +3,8 @@ package db
 import (
 	"database/sql"
 	"embed"
+	"errors"
+	"fmt"
 	"io/fs"
 
 	"github.com/pressly/goose/v3"
@@ -18,5 +20,9 @@ func Migrator(db *sql.DB) (*goose.Provider, error) {
 	if err != nil {
 		return nil, err
 	}
-	return goose.NewProvider(goose.DialectSQLite3, db, sub)
+	provider, err := goose.NewProvider(goose.DialectSQLite3, db, sub)
+	if errors.Is(err, goose.ErrNoMigrations) {
+		return nil, fmt.Errorf("%w in %s; create one with: nisaba db new <name>", err, MigrationsDir)
+	}
+	return provider, err
 }

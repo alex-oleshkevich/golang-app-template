@@ -5,6 +5,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -30,7 +31,9 @@ func TestServeListensOnLoopbackByDefault(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	errc := make(chan error, 1)
 	go func() {
-		errc <- NewCommand().Run(ctx, []string{"serve", "--port", port})
+		errc <- NewCommand().Run(ctx, []string{
+			"serve", "--port", port, "--db", filepath.Join(t.TempDir(), "t.db"), "--db-migrate",
+		})
 	}()
 
 	body := waitBody(t, "http://127.0.0.1:"+port+"/healthz")

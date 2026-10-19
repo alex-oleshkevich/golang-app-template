@@ -7,9 +7,11 @@ import (
 	"strconv"
 	"strings"
 
+	dbcmd "nisaba/internal/commands/db"
 	"nisaba/internal/db"
 	"nisaba/internal/web"
 
+	"github.com/pressly/goose/v3"
 	"github.com/urfave/cli/v3"
 )
 
@@ -41,6 +43,11 @@ func NewCommand() *cli.Command {
 				Value:   "nisaba.db",
 				Sources: cli.EnvVars("NISABA_DB"),
 			},
+			&cli.BoolFlag{
+				Name:    "db-migrate",
+				Usage:   "apply pending migrations before serving",
+				Sources: cli.EnvVars("NISABA_DB_MIGRATE"),
+			},
 		},
 		Action: run,
 	}
@@ -63,11 +70,17 @@ func validateAddress(addr string) error {
 }
 
 func run(ctx context.Context, c *cli.Command) error {
-	db, err := db.Open(ctx, c.String("db"))
+	if c.Bool("db-migrate") {
+		if err := migrate(ctx, c); err != nil {
+			return err
+		}
+	}
+
+	conn, err := db.Open(ctx, c.String("db"))
 	if err != nil {
 		return err
 	}
-	defer db.Close()
+	defer conn.Close()
 
 	server := web.New(web.Deps{
 		Config: web.ServerConfig{
@@ -77,4 +90,16 @@ func run(ctx context.Context, c *cli.Command) error {
 		},
 	})
 	return server.Run(ctx)
+}
+
+// migrate runs `db up` as its own command tree, so there is one migration code path.
+func migrate(ctx context.Context, c *cli.Command) error {
+	up := dbcmd.NewCommand()
+	up.Writer = c.Root().Writer
+	err := up.Run(ctx, []string{"db", "up", "--db", c.String("db")})
+	// A fresh project has nothing to apply yet; that must not stop the server.
+	if errors.Is(err, goose.ErrNoMigrations) {
+		return nil
+	}
+	return err
 }
