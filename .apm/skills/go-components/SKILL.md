@@ -1,13 +1,13 @@
 ---
 name: go-components
 description: >-
-  Interfaces, library choices and wiring for infrastructure components in Go
-  services: cache and counters, file storage and uploads (local disk, S3,
-  signed URLs), rate limiting (per IP, per account, outgoing API quotas). Use it
-  whenever a task adds, configures, replaces or tests one of them, or reaches for
-  Redis, Valkey, memoization, S3, MinIO, R2, file uploads, 429s, throttling or
-  brute-force protection, even if the user only says "cache this", "let users
-  attach a file" or "stop people hammering login".
+  Go service components: cache, file uploads and S3, rate limiting, login,
+  sessions, API tokens, OIDC, roles, scopes, permissions, teams and
+  multi-tenancy. Use it whenever a task adds, changes or tests one of them, even
+  if the user only says "cache this", "let users attach a file" or "only admins
+  can do this". Holds the interfaces, library picks, wiring and the traps of each
+  (Redis, signed URLs, 429s, brute-force limits, protecting routes and
+  team-owned data).
 ---
 
 # Go components
@@ -37,3 +37,12 @@ changing one URL and tests never need the real backend.
   `internal/files`, uploads, downloads or signed URLs.
 - Rate limiting: `${CLAUDE_SKILL_DIR}/references/ratelimit.md`. Read it before
   adding a limit to a route, an action or an outgoing client.
+- Authentication: `${CLAUDE_SKILL_DIR}/references/auth.md`. Login methods,
+  sessions, tokens, the `Identity` handlers read.
+- Authorization: `${CLAUDE_SKILL_DIR}/references/authz.md`. Scopes and roles,
+  declared per operation in `openapi.yaml` and checked in one place.
+- Teams: `${CLAUDE_SKILL_DIR}/references/teams.md`. Memberships, the current
+  team, and the `team_id` rule for team-owned data.
+
+Read all three auth files before any auth change: they depend on each other.
+Handlers never check identity or permissions themselves.
