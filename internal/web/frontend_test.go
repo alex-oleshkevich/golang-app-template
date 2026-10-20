@@ -5,6 +5,8 @@ import (
 	"strings"
 	"testing"
 	"testing/fstest"
+
+	"nisaba/internal/testutil"
 )
 
 func TestServeFrontend(t *testing.T) {
@@ -27,7 +29,7 @@ func TestServeFrontend(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rr := serve(frontend, tt.path)
+			rr := testutil.Get(frontend, tt.path)
 			cache := rr.Header().Get("Cache-Control")
 			if rr.Code != tt.status || cache != tt.cache || !strings.Contains(rr.Body.String(), tt.body) {
 				t.Fatalf("%d %q %q", rr.Code, cache, rr.Body.String())
@@ -37,7 +39,7 @@ func TestServeFrontend(t *testing.T) {
 }
 
 func TestServeFrontendNotBuilt(t *testing.T) {
-	rr := serve(serveFrontend(fstest.MapFS{".gitkeep": {}}), "/")
+	rr := testutil.Get(serveFrontend(fstest.MapFS{".gitkeep": {}}), "/")
 	if rr.Code != http.StatusNotFound || rr.Header().Get("Content-Type") != "application/problem+json" {
 		t.Fatalf("%d %q", rr.Code, rr.Header().Get("Content-Type"))
 	}

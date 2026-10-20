@@ -15,7 +15,9 @@ import (
 	"nisaba/internal/web/respond"
 )
 
-func validationErrorHandler(_ context.Context, err error, w http.ResponseWriter, r *http.Request, opts oapimiddleware.ErrorHandlerOpts) {
+func validationErrorHandler(
+	_ context.Context, err error, w http.ResponseWriter, r *http.Request, opts oapimiddleware.ErrorHandlerOpts,
+) {
 	res := respond.To(w, r)
 	if opts.MatchedRoute == nil {
 		res.NotFound()

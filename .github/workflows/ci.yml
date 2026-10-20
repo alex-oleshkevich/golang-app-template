@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "24"
+  PNPM_VERSION: "11.10.0"
+  GOLANGCI_LINT_VERSION: "v2.15.0"
+  # Keep in step with the uncloud daemons on the cluster.
+  UC_VERSION: "0.20.0"
+
+jobs:
+  go:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: Generated API code matches openapi.yaml
+        run: |
+          go tool oapi-codegen --config api/cfg.yaml api/openapi.yaml
+          git diff --exit-code api/api.gen.go
+      - run: go vet ./...
+      - run: go test ./...
+      - uses: golangci/golangci-lint-action@v8
+        with:
+          version: ${{ env.GOLANGCI_LINT_VERSION }}
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: ui/pnpm-lock.yaml
+      - run: pnpm --dir ui install --frozen-lockfile
+      - run: pnpm --dir ui exec biome ci
+      - run: pnpm --dir ui build
+
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: docker build --build-arg "COMMIT=${GITHUB_SHA::7}" -t nisaba:ci .
+
+  # Deploys the default branch to the Uncloud cluster. Off until the repository variable
+  # UNCLOUD_CONNECT is set; also needs NISABA_DOMAIN and UNCLOUD_KNOWN_HOSTS variables
+  # and an UNCLOUD_SSH_KEY secret.
+  deploy:
+    needs: [go, frontend, image]
+    if: >-
+      github.event_name == 'push' &&
+      github.ref_name == github.event.repository.default_branch &&
+      vars.UNCLOUD_CONNECT != ''
+    runs-on: ubuntu-latest
+    concurrency:
+      group: deploy
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install uc
+        run: |
+          curl -fsSL "https://github.com/psviderski/uncloud/releases/download/v${UC_VERSION}/uc_linux_amd64.tar.gz" \
+            | sudo tar -xz -C /usr/local/bin uc
+      - name: SSH access to the cluster
+        env:
+          SSH_KEY: ${{ secrets.UNCLOUD_SSH_KEY }}
+          KNOWN_HOSTS: ${{ vars.UNCLOUD_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+      - name: Deploy
+        env:
+          UNCLOUD_CONNECT: ${{ vars.UNCLOUD_CONNECT }}
+          NISABA_DOMAIN: ${{ vars.NISABA_DOMAIN }}
+        run: scripts/deploy.sh --yes

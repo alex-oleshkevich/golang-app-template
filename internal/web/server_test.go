@@ -4,19 +4,19 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"io"
 	"log/slog"
-	"net"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
 	"github.com/go-chi/chi/v5"
+
+	"nisaba/internal/testutil"
 )
 
 func TestRunServesHealthzUntilCancel(t *testing.T) {
-	port := freePort(t)
+	port := testutil.FreePort(t)
 	ctx, cancel := context.WithCancel(context.Background())
 	srv := New(Deps{Config: ServerConfig{ListenAddr: "127.0.0.1", ListenPort: port}})
 
@@ -25,30 +25,9 @@ func TestRunServesHealthzUntilCancel(t *testing.T) {
 		errc <- srv.Run(ctx)
 	}()
 
-	url := "http://127.0.0.1:" + port + "/healthz"
-	var resp *http.Response
-	var err error
-	deadline := time.Now().Add(2 * time.Second)
-	for time.Now().Before(deadline) {
-		resp, err = http.Get(url)
-		if err == nil {
-			break
-		}
-		time.Sleep(10 * time.Millisecond)
-	}
-	if err != nil {
-		t.Fatalf("GET /healthz: %v", err)
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if resp.StatusCode != http.StatusOK {
-		t.Fatalf("status %d", resp.StatusCode)
-	}
-	if string(body) != "\"ok\"\n" {
-		t.Fatalf("body %q", body)
+	status, body := testutil.WaitGet(t, "http://127.0.0.1:"+port+"/healthz")
+	if status != http.StatusOK || body != "\"ok\"\n" {
+		t.Fatalf("%d %q", status, body)
 	}
 
 	cancel()
@@ -70,7 +49,10 @@ func TestRouterRecoversPanic(t *testing.T) {
 	t.Cleanup(func() { slog.SetDefault(prev) })
 
 	srv := New(Deps{Config: ServerConfig{ListenAddr: "127.0.0.1", ListenPort: "8080"}})
-	router := srv.server.Handler.(*chi.Mux)
+	router, ok := srv.server.Handler.(*chi.Mux)
+	if !ok {
+		t.Fatal("handler is not a *chi.Mux")
+	}
 	router.Get("/panic", func(http.ResponseWriter, *http.Request) {
 		panic("boom")
 	})
@@ -92,7 +74,10 @@ func TestRouterRecoversPanic(t *testing.T) {
 }
 
 func TestHandlersGetADeadline(t *testing.T) {
-	router := New(Deps{}).server.Handler.(*chi.Mux)
+	router, ok := New(Deps{}).server.Handler.(*chi.Mux)
+	if !ok {
+		t.Fatal("handler is not a *chi.Mux")
+	}
 	var left time.Duration
 	router.Get("/deadline", func(_ http.ResponseWriter, r *http.Request) {
 		if deadline, ok := r.Context().Deadline(); ok {
@@ -103,18 +88,4 @@ func TestHandlersGetADeadline(t *testing.T) {
 	if left <= 0 || left > handlerTimeout || handlerTimeout >= writeTimeout {
 		t.Fatalf("deadline in %s, handler timeout %s, write timeout %s", left, handlerTimeout, writeTimeout)
 	}
-}
-
-func freePort(t *testing.T) string {
-	t.Helper()
-	ln, err := net.Listen("tcp", "127.0.0.1:0")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer ln.Close()
-	_, port, err := net.SplitHostPort(ln.Addr().String())
-	if err != nil {
-		t.Fatal(err)
-	}
-	return port
 }

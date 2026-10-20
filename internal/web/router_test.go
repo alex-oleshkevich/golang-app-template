@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"nisaba/internal/testutil"
 	"nisaba/internal/web/respond"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -16,16 +17,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	oapimiddleware "github.com/oapi-codegen/nethttp-middleware"
 )
-
-func serve(h http.Handler, path string, hdr ...string) *httptest.ResponseRecorder {
-	req := httptest.NewRequest(http.MethodGet, path, nil)
-	for i := 0; i < len(hdr); i += 2 {
-		req.Header.Set(hdr[i], hdr[i+1])
-	}
-	rr := httptest.NewRecorder()
-	h.ServeHTTP(rr, req)
-	return rr
-}
 
 func TestRouter(t *testing.T) {
 	router := New(Deps{Config: ServerConfig{Docs: true}}).server.Handler
@@ -41,7 +32,7 @@ func TestRouter(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rr := serve(router, tt.path)
+			rr := testutil.Get(router, tt.path)
 			ct := rr.Header().Get("Content-Type")
 			if rr.Code != tt.status || ct != tt.ctype || !strings.Contains(rr.Body.String(), tt.body) {
 				t.Fatalf("%d %q %q", rr.Code, ct, rr.Body.String())
@@ -53,7 +44,7 @@ func TestRouter(t *testing.T) {
 func TestSpecDocuments(t *testing.T) {
 	router := New(Deps{Config: ServerConfig{Docs: true}}).server.Handler
 
-	rr := serve(router, "/api/v1/openapi.json")
+	rr := testutil.Get(router, "/api/v1/openapi.json")
 	if rr.Code != http.StatusOK || rr.Header().Get("Content-Type") != "application/json" {
 		t.Fatalf("%d %q", rr.Code, rr.Header().Get("Content-Type"))
 	}
@@ -69,7 +60,7 @@ var assetURL = regexp.MustCompile(`(?:src|href)="([^"]+)"`)
 func TestDocsPages(t *testing.T) {
 	router := New(Deps{Config: ServerConfig{Docs: true}}).server.Handler
 
-	rr := serve(router, "/api/docs")
+	rr := testutil.Get(router, "/api/docs")
 	if rr.Code != http.StatusFound || rr.Header().Get("Location") != "/api/docs/scalar/" {
 		t.Fatalf("redirect: %d %q", rr.Code, rr.Header().Get("Location"))
 	}
@@ -84,12 +75,12 @@ func TestDocsPages(t *testing.T) {
 	}
 	for _, p := range pages {
 		t.Run(p.path, func(t *testing.T) {
-			rr := serve(router, strings.TrimSuffix(p.path, "/"))
+			rr := testutil.Get(router, strings.TrimSuffix(p.path, "/"))
 			if rr.Code != http.StatusMovedPermanently || rr.Header().Get("Location") == "" {
 				t.Fatalf("no trailing-slash redirect: %d", rr.Code)
 			}
 
-			rr = serve(router, p.path)
+			rr = testutil.Get(router, p.path)
 			if rr.Code != http.StatusOK || !strings.HasPrefix(rr.Header().Get("Content-Type"), "text/html") ||
 				rr.Header().Get("Cache-Control") != "" {
 				t.Fatalf("%d %q %q", rr.Code, rr.Header().Get("Content-Type"), rr.Header().Get("Cache-Control"))
@@ -109,7 +100,7 @@ func TestDocsPages(t *testing.T) {
 				t.Fatalf("assets %v", urls)
 			}
 			for _, m := range urls {
-				ar := serve(router, p.path+m[1])
+				ar := testutil.Get(router, p.path+m[1])
 				ct := ar.Header().Get("Content-Type")
 				if ar.Code != http.StatusOK || (!strings.Contains(ct, "javascript") && !strings.Contains(ct, "css")) {
 					t.Errorf("%s: %d %q", m[1], ar.Code, ct)
@@ -121,12 +112,12 @@ func TestDocsPages(t *testing.T) {
 
 func TestDocsAssetsGzipAndCache(t *testing.T) {
 	router := New(Deps{Config: ServerConfig{Docs: true}}).server.Handler
-	html := serve(router, "/api/docs/scalar/").Body.String()
+	html := testutil.Get(router, "/api/docs/scalar/").Body.String()
 	m := assetURL.FindStringSubmatch(html)
 	if m == nil {
 		t.Fatal("no asset in scalar page")
 	}
-	rr := serve(router, "/api/docs/scalar/"+m[1], "Accept-Encoding", "gzip")
+	rr := testutil.Get(router, "/api/docs/scalar/"+m[1], "Accept-Encoding", "gzip")
 	enc, cache := rr.Header().Get("Content-Encoding"), rr.Header().Get("Cache-Control")
 	if rr.Code != http.StatusOK || enc != "gzip" || !strings.Contains(cache, "immutable") {
 		t.Fatalf("%d %q %q", rr.Code, enc, cache)
@@ -140,7 +131,7 @@ func TestDocsOffByDefault(t *testing.T) {
 		"/api/v1/openapi.json",
 	}
 	for _, path := range paths {
-		rr := serve(router, path)
+		rr := testutil.Get(router, path)
 		if rr.Code != http.StatusNotFound || rr.Header().Get("Content-Type") != "application/problem+json" {
 			t.Errorf("%s: %d %q", path, rr.Code, rr.Header().Get("Content-Type"))
 		}

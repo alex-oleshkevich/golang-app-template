@@ -31,18 +31,12 @@ func newFormDecoder() *form.Decoder {
 type BodyOption func(*bodyConfig)
 
 type bodyConfig struct {
-	maxBytes     int64
-	allowUnknown bool
+	maxBytes int64
 }
 
 // MaxBytes caps the request body; larger bodies get 413. Default 1 MiB.
 func MaxBytes(n int64) BodyOption {
 	return func(c *bodyConfig) { c.maxBytes = n }
-}
-
-// AllowUnknownFields makes ParseJSON ignore JSON fields dst doesn't have, instead of rejecting them.
-func AllowUnknownFields() BodyOption {
-	return func(c *bodyConfig) { c.allowUnknown = true }
 }
 
 func newBodyConfig(opts []BodyOption) bodyConfig {
@@ -60,9 +54,7 @@ type Validator interface {
 func (res Response) ParseJSON(dst any, opts ...BodyOption) bool {
 	cfg := newBodyConfig(opts)
 	dec := json.NewDecoder(http.MaxBytesReader(res.w, res.r.Body, cfg.maxBytes))
-	if !cfg.allowUnknown {
-		dec.DisallowUnknownFields()
-	}
+	dec.DisallowUnknownFields()
 	if err := dec.Decode(dst); err != nil {
 		res.BadRequest()
 		return false

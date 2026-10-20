@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"net"
-	"net/http"
 	"syscall"
 	"testing"
 	"time"
+
+	"nisaba/internal/testutil"
 )
 
 func TestLogFormatJSON(t *testing.T) {
@@ -21,7 +21,8 @@ func TestLogFormatJSON(t *testing.T) {
 }
 
 func TestLogFlagsOnSubcommand(t *testing.T) {
-	if code := run([]string{"nisaba", "health", "--log-format", "text", "--log-level", "warn", "--port", "1"}); code == 0 {
+	args := []string{"nisaba", "health", "--log-format", "text", "--log-level", "warn", "--port", "1"}
+	if code := run(args); code == 0 {
 		t.Fatal("expected non-zero exit")
 	}
 	if got := fmt.Sprintf("%T", slog.Default().Handler()); got != "*tint.handler" {
@@ -63,12 +64,7 @@ func TestHelpLeavesLoggerAlone(t *testing.T) {
 }
 
 func TestSigtermShutdownExitsZero(t *testing.T) {
-	ln, err := net.Listen("tcp", "127.0.0.1:0")
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, port, _ := net.SplitHostPort(ln.Addr().String())
-	ln.Close()
+	port := testutil.FreePort(t)
 
 	codec := make(chan int, 1)
 	go func() {
@@ -76,18 +72,7 @@ func TestSigtermShutdownExitsZero(t *testing.T) {
 	}()
 
 	// Once the server answers, run's signal handler is installed, so SIGTERM won't kill the test binary.
-	deadline := time.Now().Add(2 * time.Second)
-	for {
-		resp, err := http.Get("http://127.0.0.1:" + port + "/healthz")
-		if err == nil {
-			resp.Body.Close()
-			break
-		}
-		if time.Now().After(deadline) {
-			t.Fatalf("server never came up: %v", err)
-		}
-		time.Sleep(10 * time.Millisecond)
-	}
+	testutil.WaitGet(t, "http://127.0.0.1:"+port+"/healthz")
 
 	if err := syscall.Kill(syscall.Getpid(), syscall.SIGTERM); err != nil {
 		t.Fatal(err)

@@ -2,13 +2,13 @@ package serve
 
 import (
 	"context"
-	"io"
-	"net"
 	"net/http"
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
+
+	"nisaba/internal/testutil"
 )
 
 func TestValidatePort(t *testing.T) {
@@ -27,7 +27,7 @@ func TestValidatePort(t *testing.T) {
 }
 
 func TestServeListensOnLoopbackByDefault(t *testing.T) {
-	port := freePort(t)
+	port := testutil.FreePort(t)
 	ctx, cancel := context.WithCancel(context.Background())
 	errc := make(chan error, 1)
 	go func() {
@@ -36,9 +36,9 @@ func TestServeListensOnLoopbackByDefault(t *testing.T) {
 		})
 	}()
 
-	body := waitBody(t, "http://127.0.0.1:"+port+"/healthz")
-	if body != "\"ok\"\n" {
-		t.Fatalf("body %q", body)
+	status, body := testutil.WaitGet(t, "http://127.0.0.1:"+port+"/healthz")
+	if status != http.StatusOK || body != "\"ok\"\n" {
+		t.Fatalf("%d %q", status, body)
 	}
 
 	cancel()
@@ -53,7 +53,7 @@ func TestServeListensOnLoopbackByDefault(t *testing.T) {
 }
 
 func TestServeRejectsEmptyAddress(t *testing.T) {
-	port := freePort(t)
+	port := testutil.FreePort(t)
 	err := NewCommand().Run(context.Background(), []string{"serve", "--address", "", "--port", port})
 	if err == nil || !strings.Contains(err.Error(), "address must not be empty") {
 		t.Fatalf("got %v", err)
@@ -65,42 +65,4 @@ func TestServeRejectsPortFlag(t *testing.T) {
 	if err == nil || !strings.Contains(err.Error(), "outside 1-65535") {
 		t.Fatalf("got %v", err)
 	}
-}
-
-func waitBody(t *testing.T, url string) string {
-	t.Helper()
-	deadline := time.Now().Add(2 * time.Second)
-	var err error
-	for time.Now().Before(deadline) {
-		var resp *http.Response
-		resp, err = http.Get(url)
-		if err == nil {
-			defer resp.Body.Close()
-			body, readErr := io.ReadAll(resp.Body)
-			if readErr != nil {
-				t.Fatal(readErr)
-			}
-			if resp.StatusCode != http.StatusOK {
-				t.Fatalf("status %d", resp.StatusCode)
-			}
-			return string(body)
-		}
-		time.Sleep(10 * time.Millisecond)
-	}
-	t.Fatalf("GET %s: %v", url, err)
-	return ""
-}
-
-func freePort(t *testing.T) string {
-	t.Helper()
-	ln, err := net.Listen("tcp", "127.0.0.1:0")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer ln.Close()
-	_, port, err := net.SplitHostPort(ln.Addr().String())
-	if err != nil {
-		t.Fatal(err)
-	}
-	return port
 }

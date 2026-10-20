@@ -98,7 +98,8 @@ func TestProblemBodies(t *testing.T) {
 		{"unauthenticated", func(r Response) { r.NotAuthenticated() }, http.StatusUnauthorized, "Not authenticated"},
 		{"unauthorized", func(r Response) { r.NotAuthorized() }, http.StatusForbidden, "Not authorized"},
 		{"rate limit", func(r Response) { r.RateLimitExceeded() }, http.StatusTooManyRequests, "Rate limit exceeded"},
-		{"internal", func(r Response) { r.InternalServerError() }, http.StatusInternalServerError, "Internal server error"},
+		{"internal", func(r Response) { r.InternalServerError() },
+			http.StatusInternalServerError, "Internal server error"},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -145,18 +146,25 @@ func TestParseJSON(t *testing.T) {
 }
 
 func TestParseJSONRejects(t *testing.T) {
+	noDetail := func(p ProblemDetails) bool { return p.Detail == "" }
 	cases := []struct {
 		name, body string
 		status     int
 		check      func(ProblemDetails) bool
 	}{
-		{"empty", ``, http.StatusBadRequest, func(p ProblemDetails) bool { return p.Detail == "" }},
-		{"malformed", `{"title":`, http.StatusBadRequest, func(p ProblemDetails) bool { return p.Detail == "" }},
-		{"unknown field", `{"title":"a","x":1}`, http.StatusBadRequest, func(p ProblemDetails) bool { return p.Detail == "" }},
-		{"two values", `{"title":"a"} {}`, http.StatusBadRequest, func(p ProblemDetails) bool { return strings.Contains(p.Detail, "single JSON value") }},
-		{"wrong type", `{"title":"a","stars":"many"}`, http.StatusBadRequest, func(p ProblemDetails) bool { return p.Detail == "" && p.Errors == nil }},
-		{"invalid", `{"stars":1}`, http.StatusBadRequest, func(p ProblemDetails) bool { return p.Errors["title"] == "is required" }},
-		{"too large", `{"title":"` + strings.Repeat("a", defaultMaxBodyBytes) + `"}`, http.StatusBadRequest, func(p ProblemDetails) bool { return p.Detail == "" }},
+		{"empty", ``, http.StatusBadRequest, noDetail},
+		{"malformed", `{"title":`, http.StatusBadRequest, noDetail},
+		{"unknown field", `{"title":"a","x":1}`, http.StatusBadRequest, noDetail},
+		{"two values", `{"title":"a"} {}`, http.StatusBadRequest, func(p ProblemDetails) bool {
+			return strings.Contains(p.Detail, "single JSON value")
+		}},
+		{"wrong type", `{"title":"a","stars":"many"}`, http.StatusBadRequest, func(p ProblemDetails) bool {
+			return p.Detail == "" && p.Errors == nil
+		}},
+		{"invalid", `{"stars":1}`, http.StatusBadRequest, func(p ProblemDetails) bool {
+			return p.Errors["title"] == "is required"
+		}},
+		{"too large", `{"title":"` + strings.Repeat("a", defaultMaxBodyBytes) + `"}`, http.StatusBadRequest, noDetail},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -226,12 +234,6 @@ func TestParseJSONOptions(t *testing.T) {
 	}
 	if rr.Code != http.StatusBadRequest {
 		t.Fatalf("status %d", rr.Code)
-	}
-
-	rr, res = post("application/json", `{"title":"a","extra":1}`)
-	in = noteInput{}
-	if !res.ParseJSON(&in, AllowUnknownFields()) {
-		t.Fatalf("rejected: %s", rr.Body.String())
 	}
 }
 

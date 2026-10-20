@@ -23,7 +23,7 @@ linters:
         exhaustive:
             check:
                 - switch
-                - map
+                - mapliteral
             default-signifies-exhaustive: false
         exhaustruct_v5:
             # Only our own types: stdlib/third-party structs (http.Server, slog.HandlerOptions) are built partially by design.
@@ -32,6 +32,8 @@ linters:
                 - ^nisaba/.*
             ignore-patterns:
                 - ^nisaba/api\..*Options$
+                # Built partially on purpose, then filled in by the With* options.
+                - ^nisaba/internal/web/respond\.ProblemDetails$
         govet:
             enable:
                 - shadow
@@ -45,7 +47,8 @@ linters:
         paths:
             - api/api.gen.go
         rules:
-            - path: _test\.go
+            # testutil is test code that lives outside _test.go files so other packages can import it.
+            - path: _test\.go|^internal/testutil/
               linters:
                   - exhaustruct_v5
                   - gosec
