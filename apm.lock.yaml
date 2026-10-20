@@ -2106,6 +2106,69 @@ deployments:
   content_hash: sha256:94ea85f5a0a50c29332ec3a9dffea2cb9085488fcbc23610e0846c843f5e56be
 - kind: project-relative
   target: claude
+  value: .claude/skills/this-project
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: null
+- kind: project-relative
+  target: claude
+  value: .claude/skills/this-project/SKILL.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:b49d951f94831a8f180fa771a9b4bd673559a5e5be7c10fb7b7098a4f77497a0
+- kind: project-relative
+  target: claude
+  value: .claude/skills/this-project/references/cli.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:0abab2d398a0c31ca33cc960340d91808bcd4c8928317f5107e6837fcedc3784
+- kind: project-relative
+  target: claude
+  value: .claude/skills/this-project/references/database.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:c4efd81390bf119f3d61a6d152d80566e47d0a0dd4114ed5b00b01e4775ec4b0
+- kind: project-relative
+  target: claude
+  value: .claude/skills/this-project/references/delivery.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:c3615ac6a163ca1a124f580c2e9b4c3d0f3e0155a49b81abaf2f94c0450ee1a6
+- kind: project-relative
+  target: claude
+  value: .claude/skills/this-project/references/http-api.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:043ece4a67022cd3f08fc8910c0586419183018af3b5bb43adca4c9cd691ea2f
+- kind: project-relative
+  target: claude
+  value: .claude/skills/this-project/references/testing.md
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:a5619c69760337417fbfa1399bfe3e9929c0ef8fc39900d8ff956dc176af3f4a
+- kind: project-relative
+  target: claude
   value: .claude/skills/uncloud
   runtime: null
   scope: project
@@ -2419,3 +2482,18 @@ deployments:
   - vercel-labs/agent-skills/skills/web-design-guidelines
   active_owner: vercel-labs/agent-skills/skills/web-design-guidelines
   content_hash: sha256:f4647ca866a3accf763777f83e7682954f0187cd6bea7eea0399796652414e8f
+local_deployed_files:
+- .claude/skills/this-project
+- .claude/skills/this-project/SKILL.md
+- .claude/skills/this-project/references/cli.md
+- .claude/skills/this-project/references/database.md
+- .claude/skills/this-project/references/delivery.md
+- .claude/skills/this-project/references/http-api.md
+- .claude/skills/this-project/references/testing.md
+local_deployed_file_hashes:
+  .claude/skills/this-project/SKILL.md: sha256:b49d951f94831a8f180fa771a9b4bd673559a5e5be7c10fb7b7098a4f77497a0
+  .claude/skills/this-project/references/cli.md: sha256:0abab2d398a0c31ca33cc960340d91808bcd4c8928317f5107e6837fcedc3784
+  .claude/skills/this-project/references/database.md: sha256:c4efd81390bf119f3d61a6d152d80566e47d0a0dd4114ed5b00b01e4775ec4b0
+  .claude/skills/this-project/references/delivery.md: sha256:c3615ac6a163ca1a124f580c2e9b4c3d0f3e0155a49b81abaf2f94c0450ee1a6
+  .claude/skills/this-project/references/http-api.md: sha256:043ece4a67022cd3f08fc8910c0586419183018af3b5bb43adca4c9cd691ea2f
+  .claude/skills/this-project/references/testing.md: sha256:a5619c69760337417fbfa1399bfe3e9929c0ef8fc39900d8ff956dc176af3f4a
