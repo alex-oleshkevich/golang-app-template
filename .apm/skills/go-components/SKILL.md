@@ -2,10 +2,10 @@
 name: go-components
 description: >-
   Go service components: cache, file uploads and S3, rate limiting, login,
-  sessions, API tokens, OIDC, roles, scopes, permissions, teams and
-  multi-tenancy. Use it whenever a task adds, changes or tests one of them, even
-  if the user only says "cache this", "let users attach a file" or "only admins
-  can do this". Holds the interfaces, library picks, wiring and the traps of each
+  sessions, API tokens, roles, scopes, teams, AI agents (ADK, LLMs, tools). Use
+  it whenever a task adds, changes or tests one of them, even if the user only
+  says "cache this", "let users attach a file", "only admins can do this" or
+  "add an assistant". Holds the interfaces, library picks, wiring and the traps of each
   (Redis, signed URLs, 429s, brute-force limits, protecting routes and
   team-owned data).
 ---
@@ -46,3 +46,7 @@ changing one URL and tests never need the real backend.
 
 Read all three auth files before any auth change: they depend on each other.
 Handlers never check identity or permissions themselves.
+
+- AI agents: `${CLAUDE_SKILL_DIR}/references/agents.md`. ADK Go v2, model
+  providers (Anthropic, OpenAI, OpenRouter), conversation storage, the runs
+  endpoint and tools.
