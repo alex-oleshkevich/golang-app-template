@@ -67,7 +67,49 @@ func createNote(w http.ResponseWriter, r *http.Request) {
 
 ## Errors
 
-- Wrap with `fmt.Errorf("load note %d: %w", id, err)` and return. The error is
-  logged once, where it becomes a response.
+Two layers, and only one of them knows HTTP:
+
+- **Domain errors** come from code below the handlers. They are sentinel or
+  typed errors in that package's `errors.go`, with no status, so CLI commands can
+  return and check them too.
+- **HTTP errors** exist only in handlers. A spec handler returns the generated
+  `<Operation><Status>ApplicationProblemPlusJSONResponse`; a hand-written route
+  calls `respond`. The handler turns a domain error into the response that fits.
+
+```go
+// notes/errors.go
+var ErrArchived = errors.New("note is archived")
+
+// handlers/notes.go
+err := notes.Archive(ctx, a.DB, req.Id)
+switch {
+case errors.Is(err, notes.ErrArchived):
+	return api.ArchiveNote409ApplicationProblemPlusJSONResponse{
+		Status: http.StatusConflict,
+		Title:  "Conflict",
+		Detail: "The note is already archived.",
+	}, nil
+case err != nil:
+	return nil, fmt.Errorf("archive note %d: %w", req.Id, err)
+}
+return api.ArchiveNote204Response{}, nil
+```
+
+Add a domain error only when a caller has to tell it apart from other failures.
+Any other error is wrapped with `fmt.Errorf("...: %w", err)` and returned; it
+becomes a logged 500.
+
 - 4xx `detail` may tell the client what it did wrong. A 5xx never carries
   `err.Error()`; that text is for the log.
+- Every error a route can return is listed in its `responses` in
+  `api/openapi.yaml`, pointing at `#/components/responses/Error`.
+
+## Never
+
+- `http.Error`, `w.Write` of a hand-built error body, or any error that isn't a
+  generated problem response or `respond`.
+- `respond` imported below `internal/web`.
+- `err.Error()` in a 5xx response.
+- A second validation in the handler of what the spec already checks.
+- An error status a route returns but `openapi.yaml` doesn't list.
+- A domain error nothing checks for.
