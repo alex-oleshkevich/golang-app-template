@@ -1,0 +1,26 @@
+{
+  "skill_name": "migrate-to-postgres",
+  "evals": [
+    {
+      "id": 0,
+      "name": "switch-to-postgres",
+      "prompt": "Switch us from SQLite to Postgres. Nothing in production is worth keeping.",
+      "expected_output": "pgx stdlib driver, modernc removed, goose postgres dialect, sqlc postgresql engine, per-test databases in testutil, CI postgres service, compose postgres service with password from env, stateless image, docs and skills updated, tests pass against a real server.",
+      "files": [],
+      "assertions": [
+        "db.Open uses github.com/jackc/pgx/v5/stdlib through database/sql and still returns *sql.DB",
+        "modernc.org/sqlite is gone from go.mod",
+        "Migrator uses goose.DialectPostgres",
+        "sqlc.yaml uses engine: postgresql",
+        "Errors from db.Open don't include the DSN (no password leak)",
+        "testutil gives each test its own fresh Postgres database and drops it afterwards",
+        "Tests that run serve pass a Postgres URL instead of a SQLite file",
+        "ci.yml go job has a postgres service container",
+        "compose.yml adds a postgres service with a named volume and the password taken from an env var, not hardcoded",
+        "Dockerfile no longer creates /data or sets APP_DB to a SQLite file",
+        "SQLite/WAL statements are removed from AGENTS.md and the this-project skill",
+        "go test ./... passes against a real Postgres server"
+      ]
+    }
+  ]
+}

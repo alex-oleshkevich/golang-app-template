@@ -1,0 +1,42 @@
+{
+  "skill_name": "go-components",
+  "evals": [
+    {
+      "id": 0,
+      "name": "api-rate-limit",
+      "prompt": "Put a rate limit on the whole API so one client can't hammer us. We run behind Caddy on Uncloud.",
+      "expected_output": "httprate middleware on the API route group keyed on middleware.GetClientIP canonicalized, problem+json limit handler, in-memory counter, constant limit, router test with X-Forwarded-For.",
+      "files": [],
+      "assertions": [
+        "Uses github.com/go-chi/httprate middleware on the API routes",
+        "Keys the limit on the client IP from middleware.GetClientIP (X-Forwarded-For), not RemoteAddr or httprate.KeyByIP",
+        "Canonicalizes the IP with httprate.CanonicalizeIP",
+        "Sets WithLimitHandler so a 429 is answered as problem+json",
+        "Keeps httprate's in-memory counter (no Redis-backed WithLimitCounter)",
+        "Defines the limit as a constant next to the route group, not a new flag or config",
+        "A test sends limit+1 requests with one X-Forwarded-For and asserts 429, Retry-After and a problem+json body",
+        "A test shows a different client IP still gets 200",
+        "go test ./... passes"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "cache-component",
+      "prompt": "Add a cache component handlers can use. Redis in production, nothing to install for local dev.",
+      "expected_output": "internal/cache with Cache interface and ErrMiss, memory (otter v2) and redis (go-redis v9) implementations from Open(ctx, url), --cache-url with APP_CACHE_URL, passed via web.Deps, closed on exit, shared cachetest suite, generic helpers.",
+      "files": [],
+      "assertions": [
+        "Creates internal/cache with a Cache interface (ctx first) and an ErrMiss sentinel",
+        "Has an in-memory implementation built on github.com/maypok86/otter/v2",
+        "Has a Redis implementation built on github.com/redis/go-redis/v9",
+        "Chooses the implementation from a URL via Open(ctx, url) (memory:// and redis://)",
+        "serve gets a --cache-url flag with Sources cli.EnvVars(\"APP_CACHE_URL\") and memory:// as default",
+        "The cache reaches handlers through web.Deps / handlers.API, not a package-level variable",
+        "The cache is closed when serve ends (defer Close)",
+        "One shared test suite (e.g. cachetest.Run) runs against the implementations; Redis is skipped without a URL env var",
+        "Typed helpers (GetAs/SetAs/GetOrSet) are generic package functions, not interface methods",
+        "go test ./... passes"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "skill_name": "rename-app",
+  "evals": [
+    {
+      "id": 0,
+      "name": "rename-with-module-path",
+      "prompt": "This template should be called Ledger now. Module path github.com/acme-co/ledger. We haven't deployed it anywhere yet.",
+      "expected_output": "cmd/ledger, module github.com/acme-co/ledger, every old name replaced, golangci regexes escaped, api.gen.go regenerated, skills lock refreshed, build and tests pass.",
+      "files": [],
+      "assertions": [
+        "The cmd/ entry point directory was moved to cmd/ledger",
+        "go.mod module is github.com/acme-co/ledger and all imports use it",
+        "git grep -i for the old name finds nothing in tracked files",
+        "Display name is Ledger (openapi info.title, docs page titles, CLI Usage)",
+        "compose.yml, Dockerfile, justfile, .air.toml and ci.yml use ledger for binary, image and volume",
+        ".golangci.yml path patterns use the new module path with escaped dots",
+        "api/api.gen.go was regenerated (embedded spec carries the new title), not hand-edited",
+        "apm.lock.yaml was refreshed with just install-skills rather than edited by hand, or the agent says it must be",
+        "go build ./... and go test ./... pass"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "rename-deployed-app",
+      "prompt": "rename the app to orbit. it's already running on our uncloud cluster with real data in it",
+      "expected_output": "Rename done, but the compose volume keeps its old name so the data survives, with a comment; the user is told the old service keeps running and how to remove it after checking the new one.",
+      "files": [],
+      "assertions": [
+        "cmd/orbit exists and the module, binary and display name are orbit/Orbit",
+        "compose.yml keeps mounting the existing data volume under its old name (or otherwise preserves the data) instead of a new empty orbit-data volume",
+        "The final message warns that renaming the deployed service/volume would otherwise lose data or leave the old service running",
+        "The final message tells the user to remove the old service after verifying the new one",
+        "No other tracked file still has the old name except the deliberately kept volume",
+        "go build ./... and go test ./... pass"
+      ]
+    }
+  ]
+}
