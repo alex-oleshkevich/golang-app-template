@@ -5,6 +5,10 @@ dev $APP_FRONTEND_DEV_SERVER="http://127.0.0.1:5173":
     command -v air >/dev/null || go install github.com/air-verse/air@v1.67.4
     air
 
+[doc("Install the agent skills in apm.yml into .claude/skills, at the commits pinned in apm.lock.yaml.")]
+install-skills:
+    uvx --from apm-cli==0.34.0 apm install --target claude
+
 [doc("Build the frontend in ui/ into internal/web/assets/app, which the binary embeds.")]
 ui-build:
     pnpm --dir ui build

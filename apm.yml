@@ -1,0 +1,19 @@
+name: nisaba
+version: 0.1.0
+# Agent skills; `just install-skills` installs them into .claude/skills at the commits in apm.lock.yaml.
+dependencies:
+  apm:
+    - microsoft/apm/packages/apm-guide/.apm/skills/apm-usage
+    - shadcn/ui/skills/shadcn
+    - shadcn/improve/skills/improve
+    - paulrberg/agent-skills/skills/tailwind-css
+    - vercel-labs/agent-skills/skills/web-design-guidelines
+    - vercel-labs/agent-skills/skills/react-best-practices
+    - antfu/skills/skills/vite
+    - antfu/skills/skills/vitest
+    - samber/cc-skills-golang/skills/golang-testing
+    - samber/cc-skills-golang/skills/golang-error-handling
+    - samber/cc-skills-golang/skills/golang-security
+    - samber/cc-skills-golang/skills/golang-database
+    - microsoft/playwright-cli/skills/playwright-cli
+    - affaan-m/ecc/skills/uncloud

@@ -39,6 +39,10 @@ go.work.sum
 nisaba.db*
 .codegraph
 
+# Agent skills; `just install-skills` installs them from apm.yml and apm.lock.yaml.
+/.claude/skills
+apm_modules/
+
 # Frontend build output; `just ui-build` writes it, the binary embeds it.
 internal/web/assets/app/*
 !internal/web/assets/app/.gitkeep
