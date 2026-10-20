@@ -2121,7 +2121,16 @@ deployments:
   owners:
   - .
   active_owner: .
-  content_hash: sha256:b49d951f94831a8f180fa771a9b4bd673559a5e5be7c10fb7b7098a4f77497a0
+  content_hash: sha256:585a61036db3f95e6d96b35ccf5716ed6f25da68da6c48e30955a1d335f2b2a6
+- kind: project-relative
+  target: claude
+  value: .claude/skills/this-project/evals/evals.json
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:9a283a2ad1aa32c12561968321cb28251eb0705e887fa52d6ef4ee754da4ec1c
 - kind: project-relative
   target: claude
   value: .claude/skills/this-project/references/cli.md
@@ -2157,7 +2166,7 @@ deployments:
   owners:
   - .
   active_owner: .
-  content_hash: sha256:043ece4a67022cd3f08fc8910c0586419183018af3b5bb43adca4c9cd691ea2f
+  content_hash: sha256:15bddb35d56f0ce5e075e19c03f3cb80e6e7e539a4fe10a60d80d74a431f5340
 - kind: project-relative
   target: claude
   value: .claude/skills/this-project/references/testing.md
@@ -2485,15 +2494,17 @@ deployments:
 local_deployed_files:
 - .claude/skills/this-project
 - .claude/skills/this-project/SKILL.md
+- .claude/skills/this-project/evals/evals.json
 - .claude/skills/this-project/references/cli.md
 - .claude/skills/this-project/references/database.md
 - .claude/skills/this-project/references/delivery.md
 - .claude/skills/this-project/references/http-api.md
 - .claude/skills/this-project/references/testing.md
 local_deployed_file_hashes:
-  .claude/skills/this-project/SKILL.md: sha256:b49d951f94831a8f180fa771a9b4bd673559a5e5be7c10fb7b7098a4f77497a0
+  .claude/skills/this-project/SKILL.md: sha256:585a61036db3f95e6d96b35ccf5716ed6f25da68da6c48e30955a1d335f2b2a6
+  .claude/skills/this-project/evals/evals.json: sha256:9a283a2ad1aa32c12561968321cb28251eb0705e887fa52d6ef4ee754da4ec1c
   .claude/skills/this-project/references/cli.md: sha256:0abab2d398a0c31ca33cc960340d91808bcd4c8928317f5107e6837fcedc3784
   .claude/skills/this-project/references/database.md: sha256:c4efd81390bf119f3d61a6d152d80566e47d0a0dd4114ed5b00b01e4775ec4b0
   .claude/skills/this-project/references/delivery.md: sha256:c3615ac6a163ca1a124f580c2e9b4c3d0f3e0155a49b81abaf2f94c0450ee1a6
-  .claude/skills/this-project/references/http-api.md: sha256:043ece4a67022cd3f08fc8910c0586419183018af3b5bb43adca4c9cd691ea2f
+  .claude/skills/this-project/references/http-api.md: sha256:15bddb35d56f0ce5e075e19c03f3cb80e6e7e539a4fe10a60d80d74a431f5340
   .claude/skills/this-project/references/testing.md: sha256:a5619c69760337417fbfa1399bfe3e9929c0ef8fc39900d8ff956dc176af3f4a

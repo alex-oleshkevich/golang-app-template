@@ -1,0 +1,49 @@
+{
+  "skill_name": "this-project",
+  "evals": [
+    {
+      "id": 0,
+      "name": "archive-note-endpoint",
+      "prompt": "Add POST /api/v1/notes/{id}/archive. It answers 204, 404 when the note doesn't exist and 409 when it is already archived. Keep the notes in memory for now.",
+      "expected_output": "Operation added to api/openapi.yaml with 404 and 409 pointing at the Error response, api.gen.go regenerated, method on handlers.API in handlers/notes.go mapping a sentinel error to the generated 409 type, router tests asserting the problem body.",
+      "files": [],
+      "assertions": [
+        "Adds the operation to api/openapi.yaml before writing the handler, with 404 and 409 responses using #/components/responses/Error",
+        "Regenerates api/api.gen.go with `just generate` instead of editing it",
+        "Implements the method on handlers.API in internal/web/handlers/notes.go",
+        "Represents 'already archived' as a sentinel or typed Go error and maps it with errors.Is/As in the handler",
+        "Returns the generated ...409ApplicationProblemPlusJSONResponse type, not http.Error or hand-built JSON",
+        "Tests assert the status and the problem+json body, not only the status"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "export-command",
+      "prompt": "Add a CLI command `export` that writes all migration names to a file given by --out, defaulting to stdout. Deploy should be able to set the output path with an env var.",
+      "expected_output": "internal/commands/export/cmd.go with NewCommand(), flags declared inline including --db and --out with APP_ env sources, output to c.Root().Writer when --out is empty, errors returned, registered alphabetically in main.go.",
+      "files": [],
+      "assertions": [
+        "Creates internal/commands/export/cmd.go with func NewCommand() *cli.Command",
+        "Declares --out (and --db if used) inline in this command rather than in a shared flags package",
+        "Gives --out Sources: cli.EnvVars with an APP_ prefix",
+        "Writes stdout output through c.Root().Writer, not fmt.Println or os.Stdout",
+        "Returns errors instead of calling os.Exit or printing them",
+        "Registers the command in cmd/nisaba/main.go in alphabetical order"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "notes-table",
+      "prompt": "We need a notes table (id, title, archived_at) and a query to fetch one note by id. Wire it so handlers can use it later.",
+      "expected_output": "New goose migration created with `just cmd db new`, queries in internal/db/queries/notes.sql with sqlc annotations, `just sqlc` run, DB passed through web.Deps and handlers.API, a test on testutil.DB.",
+      "files": [],
+      "assertions": [
+        "Creates the migration via `just cmd db new` (goose SQL with Up and Down) in internal/db/migrations",
+        "Writes the query in internal/db/queries/notes.sql with a `-- name: ... :one` annotation and runs `just sqlc`",
+        "Passes the connection through web.Deps and a field on handlers.API, not a package-level variable",
+        "Opens the database only through db.Open",
+        "Tests the query against testutil.DB, not a mock"
+      ]
+    }
+  ]
+}
