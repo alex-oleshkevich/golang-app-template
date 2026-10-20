@@ -8,8 +8,6 @@ dev $NISABA_FRONTEND_DEV_SERVER="http://127.0.0.1:5173":
 [doc("Build the frontend in ui/ into internal/web/assets/app, which the binary embeds.")]
 ui-build:
     pnpm --dir ui build
-    # vite empties the output dir; the placeholder keeps go:embed valid on a fresh clone.
-    touch internal/web/assets/app/.gitkeep
 
 [doc("Build the frontend, then the nisaba binary into bin/nisaba.")]
 build: ui-build
