@@ -5,7 +5,7 @@ set -euo pipefail
 
 cd "$(dirname -- "$0")/.." || exit 1
 
-: "${NISABA_DOMAIN:?set NISABA_DOMAIN}"
+: "${APP_DOMAIN:?set APP_DOMAIN}"
 
 if ! command -v uc >/dev/null 2>&1; then
   printf '%s\n' "uc is not installed" >&2
@@ -13,7 +13,7 @@ if ! command -v uc >/dev/null 2>&1; then
 fi
 
 # compose.yml passes this to the image build, which stamps it into the binary.
-NISABA_COMMIT="$(git rev-parse --short=7 HEAD)"
-export NISABA_COMMIT
+APP_COMMIT="$(git rev-parse --short=7 HEAD)"
+export APP_COMMIT
 
 exec uc deploy "$@"

@@ -41,7 +41,7 @@ COPY --from=build --chown=nonroot:nonroot /data /data
 
 USER nonroot:nonroot
 
-ENV NISABA_DB=/data/nisaba.db
+ENV APP_DB=/data/nisaba.db
 EXPOSE 8080
 
 ENTRYPOINT ["/nisaba"]

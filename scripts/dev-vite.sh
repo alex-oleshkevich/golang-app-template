@@ -5,7 +5,7 @@ set -euo pipefail
 # Vite starts once and survives rebuilds. When either Vite or air exits, the other is stopped.
 
 air_pid="${1:?usage: dev-vite.sh AIR_PID}"
-url="${NISABA_FRONTEND_DEV_SERVER:?start through just dev}"
+url="${APP_FRONTEND_DEV_SERVER:?start through just dev}"
 
 # pre_cmd runs before every rebuild; after the first one Vite is already up.
 if curl -s -o /dev/null "${url}"; then

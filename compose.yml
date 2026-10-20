@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        COMMIT: ${NISABA_COMMIT:-unknown}
+        COMMIT: ${APP_COMMIT:-unknown}
     image: nisaba:{{gitsha 7}}
     command: ["serve", "--address", "0.0.0.0", "--port", "8080", "--db-migrate"]
     restart: unless-stopped
@@ -24,7 +24,7 @@ services:
     volumes:
       - nisaba-data:/data
     x-ports:
-      - ${NISABA_DOMAIN:?set NISABA_DOMAIN}:8080/https
+      - ${APP_DOMAIN:?set APP_DOMAIN}:8080/https
     healthcheck:
       test: ["CMD", "/nisaba", "health", "--port", "8080"]
       interval: 10s

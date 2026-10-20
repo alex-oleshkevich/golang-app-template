@@ -36,23 +36,23 @@ func NewCommand() *cli.Command {
 			&cli.BoolFlag{
 				Name:    "docs",
 				Usage:   "serve the OpenAPI document and the Swagger UI / Scalar pages",
-				Sources: cli.EnvVars("NISABA_DOCS"),
+				Sources: cli.EnvVars("APP_DOCS"),
 			},
 			&cli.StringFlag{
 				Name:    "db",
 				Usage:   "SQLite database DSN",
 				Value:   "nisaba.db",
-				Sources: cli.EnvVars("NISABA_DB"),
+				Sources: cli.EnvVars("APP_DB"),
 			},
 			&cli.BoolFlag{
 				Name:    "db-migrate",
 				Usage:   "apply pending migrations before serving",
-				Sources: cli.EnvVars("NISABA_DB_MIGRATE"),
+				Sources: cli.EnvVars("APP_DB_MIGRATE"),
 			},
 			&cli.StringFlag{
 				Name:      "frontend-dev-server",
 				Usage:     "proxy the frontend to the Vite dev server at `URL` instead of serving the embedded build",
-				Sources:   cli.EnvVars("NISABA_FRONTEND_DEV_SERVER"),
+				Sources:   cli.EnvVars("APP_FRONTEND_DEV_SERVER"),
 				Validator: validateURL,
 			},
 		},

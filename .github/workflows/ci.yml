@@ -59,7 +59,7 @@ jobs:
       - run: docker build --build-arg "COMMIT=${GITHUB_SHA::7}" -t nisaba:ci .
 
   # Deploys the default branch to the Uncloud cluster. Off until the repository variable
-  # UNCLOUD_CONNECT is set; also needs NISABA_DOMAIN and UNCLOUD_KNOWN_HOSTS variables
+  # UNCLOUD_CONNECT is set; also needs APP_DOMAIN and UNCLOUD_KNOWN_HOSTS variables
   # and an UNCLOUD_SSH_KEY secret.
   deploy:
     needs: [go, frontend, image]
@@ -89,5 +89,5 @@ jobs:
       - name: Deploy
         env:
           UNCLOUD_CONNECT: ${{ vars.UNCLOUD_CONNECT }}
-          NISABA_DOMAIN: ${{ vars.NISABA_DOMAIN }}
+          APP_DOMAIN: ${{ vars.APP_DOMAIN }}
         run: scripts/deploy.sh --yes

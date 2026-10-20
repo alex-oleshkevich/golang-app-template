@@ -1,7 +1,7 @@
 # Nisaba development and deploy tasks.
 
 [doc("Serve API and frontend on :8080, both reloading on change. The argument is Vite's address.")]
-dev $NISABA_FRONTEND_DEV_SERVER="http://127.0.0.1:5173":
+dev $APP_FRONTEND_DEV_SERVER="http://127.0.0.1:5173":
     command -v air >/dev/null || go install github.com/air-verse/air@v1.67.4
     air
 
@@ -13,7 +13,7 @@ ui-build:
 build: ui-build
     CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -X main.commit=$(git rev-parse --short=7 HEAD) -X main.buildTime=$(date -u +%Y-%m-%dT%H:%M:%SZ)" -o bin/nisaba ./cmd/nisaba
 
-[doc("Build the image and deploy it to the Uncloud cluster. Requires NISABA_DOMAIN.")]
+[doc("Build the image and deploy it to the Uncloud cluster. Requires APP_DOMAIN.")]
 deploy *args:
     ./scripts/deploy.sh {{args}}
 

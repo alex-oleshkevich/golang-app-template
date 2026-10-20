@@ -25,7 +25,7 @@ func NewCommand() *cli.Command {
 				Name:    "db",
 				Usage:   "SQLite database file",
 				Value:   "nisaba.db",
-				Sources: cli.EnvVars("NISABA_DB"),
+				Sources: cli.EnvVars("APP_DB"),
 			},
 		},
 		Commands: []*cli.Command{
