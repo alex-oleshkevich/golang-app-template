@@ -57,11 +57,18 @@ Run from the repository root. `OLD`/`NEW` are slugs, `Old`/`New` display names,
 
    Then rewrite the `^NEW/` patterns in `.golangci.yml` to `MOD`. They are
    regexes, so escape the dots: `^github\.com/owner/repo/.*`.
-4. If the app is deployed, put the old volume back under the new service so it
-   keeps its data: in `compose.yml` keep the volume key `OLD-data` (both under
-   the service and under `volumes:`), with a comment saying why. After the
-   first deploy on the new name, the old service still runs; tell the user to
-   check the new one, then `uc service rm OLD`.
+4. If the app is deployed, keep its data reachable under the new name:
+   - In `compose.yml`, keep the volume key `OLD-data` (under the service and
+     under `volumes:`), with a comment saying why. Check the real name with
+     `uc volume ls`.
+   - Keep the database file name too: the rename turned `APP_DB=/data/OLD.db`
+     in the `Dockerfile` into `/data/NEW.db`, which `--db-migrate` would create
+     empty. Set `APP_DB: /data/OLD.db` on the service in `compose.yml`.
+   - A volume lives on one machine. On a cluster of more than one, pin the
+     service to that machine with `x-machines`.
+   - After the first deploy the old service still runs on the same volume.
+     Tell the user to back up the database, check the new service, then
+     `uc service rm OLD`.
 5. Regenerate: `just generate` (the OpenAPI spec is embedded in
    `api/api.gen.go`, so the title change lands there) and `just install-skills`
    (skill files changed, so `apm.lock.yaml` must be rewritten by the tool, never

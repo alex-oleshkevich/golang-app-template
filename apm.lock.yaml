@@ -666,6 +666,15 @@ deployments:
   content_hash: sha256:475ee0b320358e21a4f518d6030a2d7ab4bd1e7ffffbaa58afd447bc86febd62
 - kind: project-relative
   target: claude
+  value: .claude/skills/go-components/evals/evals.json
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:cfc792176bcecb37cd5336d7d809e634cbb2d1ef0891e7adc490fefcff250b2e
+- kind: project-relative
+  target: claude
   value: .claude/skills/go-components/references/agents.md
   runtime: null
   scope: project
@@ -1132,6 +1141,15 @@ deployments:
   - .
   active_owner: .
   content_hash: sha256:d190d36d97d595626b34e9ebace0671f68cff5e567cc5661220965420f2c33de
+- kind: project-relative
+  target: claude
+  value: .claude/skills/migrate-to-postgres/evals/evals.json
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:9fc53c72c237af0089137cd922d066710ce6dfede6403d11a7e5978b9f421779
 - kind: project-relative
   target: claude
   value: .claude/skills/playwright-cli
@@ -1950,7 +1968,16 @@ deployments:
   owners:
   - .
   active_owner: .
-  content_hash: sha256:71c3b7e6e70d52f00ab2db72a28ecb513bd2b43f65bf27df34353338970f2b68
+  content_hash: sha256:ec88fde840fd6962788638d05a8378ee7643335a5fb048c01ddf1192b8bb0eaa
+- kind: project-relative
+  target: claude
+  value: .claude/skills/rename-app/evals/evals.json
+  runtime: null
+  scope: project
+  owners:
+  - .
+  active_owner: .
+  content_hash: sha256:45e5d5990c8e986698788ec7fdb99d64e9d7d38f3d159089498e6acca676808c
 - kind: project-relative
   target: claude
   value: .claude/skills/shadcn
@@ -2611,6 +2638,7 @@ deployments:
 local_deployed_files:
 - .claude/skills/go-components
 - .claude/skills/go-components/SKILL.md
+- .claude/skills/go-components/evals/evals.json
 - .claude/skills/go-components/references/agents.md
 - .claude/skills/go-components/references/auth.md
 - .claude/skills/go-components/references/authz.md
@@ -2620,8 +2648,10 @@ local_deployed_files:
 - .claude/skills/go-components/references/teams.md
 - .claude/skills/migrate-to-postgres
 - .claude/skills/migrate-to-postgres/SKILL.md
+- .claude/skills/migrate-to-postgres/evals/evals.json
 - .claude/skills/rename-app
 - .claude/skills/rename-app/SKILL.md
+- .claude/skills/rename-app/evals/evals.json
 - .claude/skills/this-project
 - .claude/skills/this-project/SKILL.md
 - .claude/skills/this-project/evals/evals.json
@@ -2632,6 +2662,7 @@ local_deployed_files:
 - .claude/skills/this-project/references/testing.md
 local_deployed_file_hashes:
   .claude/skills/go-components/SKILL.md: sha256:475ee0b320358e21a4f518d6030a2d7ab4bd1e7ffffbaa58afd447bc86febd62
+  .claude/skills/go-components/evals/evals.json: sha256:cfc792176bcecb37cd5336d7d809e634cbb2d1ef0891e7adc490fefcff250b2e
   .claude/skills/go-components/references/agents.md: sha256:da9566fbed454fdec3e517abc93786ccf9bda27decba3ef73f7eebf34bb504d5
   .claude/skills/go-components/references/auth.md: sha256:96ec1a29a06dd98a5c635accc0387ba50c28eec8fa8101ba6e3a7d2cf3b71b14
   .claude/skills/go-components/references/authz.md: sha256:277601dfa5834ad5ddd4d82d949fc2b2c3a3f04f5fd8cc70cae857c69f7466cd
@@ -2640,7 +2671,9 @@ local_deployed_file_hashes:
   .claude/skills/go-components/references/ratelimit.md: sha256:93908b70b05bafea7c6da8aa0f16d2c3b0cf4880a1864d3967bc7a0b9c007da2
   .claude/skills/go-components/references/teams.md: sha256:e71baef582ae04adb8ecc7f7f8cc541885866be19aac7fe872a6cfa941eac0d9
   .claude/skills/migrate-to-postgres/SKILL.md: sha256:d190d36d97d595626b34e9ebace0671f68cff5e567cc5661220965420f2c33de
-  .claude/skills/rename-app/SKILL.md: sha256:71c3b7e6e70d52f00ab2db72a28ecb513bd2b43f65bf27df34353338970f2b68
+  .claude/skills/migrate-to-postgres/evals/evals.json: sha256:9fc53c72c237af0089137cd922d066710ce6dfede6403d11a7e5978b9f421779
+  .claude/skills/rename-app/SKILL.md: sha256:ec88fde840fd6962788638d05a8378ee7643335a5fb048c01ddf1192b8bb0eaa
+  .claude/skills/rename-app/evals/evals.json: sha256:45e5d5990c8e986698788ec7fdb99d64e9d7d38f3d159089498e6acca676808c
   .claude/skills/this-project/SKILL.md: sha256:585a61036db3f95e6d96b35ccf5716ed6f25da68da6c48e30955a1d335f2b2a6
   .claude/skills/this-project/evals/evals.json: sha256:9a283a2ad1aa32c12561968321cb28251eb0705e887fa52d6ef4ee754da4ec1c
   .claude/skills/this-project/references/cli.md: sha256:0abab2d398a0c31ca33cc960340d91808bcd4c8928317f5107e6837fcedc3784
