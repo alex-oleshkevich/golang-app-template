@@ -3,9 +3,11 @@ name: go-components
 description: >-
   Interfaces, library choices and wiring for infrastructure components in Go
   services: cache and counters, file storage and uploads (local disk, S3,
-  signed URLs). Use it whenever a task adds, configures, replaces or tests one
-  of them, or reaches for Redis, Valkey, memoization, S3, MinIO, R2 or file
-  uploads, even if the user only says "cache this" or "let users attach a file".
+  signed URLs), rate limiting (per IP, per account, outgoing API quotas). Use it
+  whenever a task adds, configures, replaces or tests one of them, or reaches for
+  Redis, Valkey, memoization, S3, MinIO, R2, file uploads, 429s, throttling or
+  brute-force protection, even if the user only says "cache this", "let users
+  attach a file" or "stop people hammering login".
 ---
 
 # Go components
@@ -33,3 +35,5 @@ changing one URL and tests never need the real backend.
   `internal/cache` or adding caching anywhere.
 - Files: `${CLAUDE_SKILL_DIR}/references/files.md`. Read it before touching
   `internal/files`, uploads, downloads or signed URLs.
+- Rate limiting: `${CLAUDE_SKILL_DIR}/references/ratelimit.md`. Read it before
+  adding a limit to a route, an action or an outgoing client.
